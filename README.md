@@ -1,6 +1,4 @@
-# Calendar
-
-已在子目录 reminder-plugin 中创建 React 任务提醒插件。
+# Reminder-Plugin
 
 运行方式：
 
