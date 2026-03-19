@@ -19,24 +19,33 @@ function statusOf(task, now) {
   return '已结束';
 }
 
-export default function TaskList({ tasks, onEdit, onDelete }) {
+export default function TaskList({
+  title = '任务列表',
+  emptyMessage = '还没有任务，先创建一个时间段提醒吧。',
+  archiveButtonText = '归档',
+  tasks,
+  onEdit,
+  onDelete,
+  onArchive,
+  statusLabel,
+}) {
   const now = Date.now();
 
   if (!tasks.length) {
     return (
       <section className="task-list empty-state">
-        <h2>任务列表</h2>
-        <p>还没有任务，先创建一个时间段提醒吧。</p>
+        <h2>{title}</h2>
+        <p>{emptyMessage}</p>
       </section>
     );
   }
 
   return (
     <section className="task-list">
-      <h2>任务列表</h2>
+      <h2>{title}</h2>
       <ul>
         {tasks.map((task) => {
-          const status = statusOf(task, now);
+          const status = statusLabel || statusOf(task, now);
           return (
             <li key={task.id} className="task-item">
               <div className="task-head">
@@ -48,16 +57,25 @@ export default function TaskList({ tasks, onEdit, onDelete }) {
               </p>
               {task.description ? <p className="description">{task.description}</p> : null}
               <div className="task-actions">
-                <button type="button" onClick={() => onEdit(task)}>
-                  编辑
-                </button>
-                <button
-                  type="button"
-                  className="danger"
-                  onClick={() => onDelete(task.id)}
-                >
-                  删除
-                </button>
+                {onEdit ? (
+                  <button type="button" onClick={() => onEdit(task)}>
+                    编辑
+                  </button>
+                ) : null}
+                {onArchive ? (
+                  <button type="button" className="secondary" onClick={() => onArchive(task.id)}>
+                    {archiveButtonText}
+                  </button>
+                ) : null}
+                {onDelete ? (
+                  <button
+                    type="button"
+                    className="danger"
+                    onClick={() => onDelete(task.id)}
+                  >
+                    删除
+                  </button>
+                ) : null}
               </div>
             </li>
           );

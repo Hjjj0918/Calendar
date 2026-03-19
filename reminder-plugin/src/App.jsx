@@ -91,7 +91,10 @@ function loadTasks() {
       return [];
     }
 
-    return parsed;
+    return parsed.map((task) => ({
+      ...task,
+      archived: Boolean(task.archived),
+    }));
   } catch (error) {
     return [];
   }
@@ -135,7 +138,7 @@ export default function App() {
     const timer = window.setInterval(() => {
       const now = Date.now();
 
-      tasks.forEach((task) => {
+      tasks.filter((task) => !task.archived).forEach((task) => {
         const start = new Date(task.startAt).getTime();
         const end = new Date(task.endAt).getTime();
 
@@ -187,6 +190,7 @@ export default function App() {
       description: formData.description,
       startAt: new Date(formData.startAt).toISOString(),
       endAt: new Date(formData.endAt).toISOString(),
+      archived: editingTask?.archived ?? false,
     };
 
     setTasks((previous) =>
@@ -207,20 +211,40 @@ export default function App() {
     setToast('任务已删除');
   }
 
+  function handleArchive(taskId) {
+    setTasks((previous) =>
+      previous.map((item) => (item.id === taskId ? { ...item, archived: true } : item))
+    );
+    setEditingTask((previous) => (previous?.id === taskId ? null : previous));
+    setNotifiedMap((previous) => clearNotifyFlags(previous, taskId));
+    setToast('任务已归档');
+  }
+
+  function handleUnarchive(taskId) {
+    setTasks((previous) =>
+      previous.map((item) => (item.id === taskId ? { ...item, archived: false } : item))
+    );
+    setNotifiedMap((previous) => clearNotifyFlags(previous, taskId));
+    setToast('任务已取消归档');
+  }
+
+  const activeTasks = useMemo(() => tasks.filter((task) => !task.archived), [tasks]);
+  const archivedTasks = useMemo(() => tasks.filter((task) => task.archived), [tasks]);
+
   const summary = useMemo(() => {
     const now = Date.now();
-    const active = tasks.filter((task) => {
+    const active = activeTasks.filter((task) => {
       const start = new Date(task.startAt).getTime();
       const end = new Date(task.endAt).getTime();
       return now >= start && now <= end;
     }).length;
 
     return {
-      total: tasks.length,
+      total: activeTasks.length,
       active,
-      upcoming: tasks.filter((task) => new Date(task.startAt).getTime() > now).length,
+      upcoming: activeTasks.filter((task) => new Date(task.startAt).getTime() > now).length,
     };
-  }, [tasks]);
+  }, [activeTasks]);
 
   return (
     <main className="app-shell">
@@ -268,7 +292,25 @@ export default function App() {
           onSubmit={handleSubmit}
           onCancel={() => setEditingTask(null)}
         />
-        <TaskList tasks={tasks} onEdit={setEditingTask} onDelete={handleDelete} />
+        <div className="list-column">
+          <TaskList
+            title="任务列表"
+            emptyMessage="还没有任务，先创建一个时间段提醒吧。"
+            tasks={activeTasks}
+            onEdit={setEditingTask}
+            onDelete={handleDelete}
+            onArchive={handleArchive}
+          />
+          <TaskList
+            title="已归档任务"
+            emptyMessage="暂无已归档任务。"
+            tasks={archivedTasks}
+            archiveButtonText="取消归档"
+            onArchive={handleUnarchive}
+            onDelete={handleDelete}
+            statusLabel="已归档"
+          />
+        </div>
       </section>
 
       {toast ? <div className="toast">{toast}</div> : null}

@@ -118,6 +118,12 @@ textarea {
   grid-template-columns: minmax(280px, 0.95fr) minmax(320px, 1.05fr);
 }
 
+.list-column {
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+}
+
 .task-form,
 .task-list {
   background: var(--bg-layer);
@@ -231,6 +237,11 @@ button.danger {
 .status-已结束 {
   color: #725d4b;
   background: #f4ede4;
+}
+
+.status-已归档 {
+  color: #42506d;
+  background: #e9eef8;
 }
 
 .time-range,
