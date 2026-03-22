@@ -228,6 +228,19 @@ export default function App() {
     setToast('任务已取消归档');
   }
 
+  function handleArchiveAll() {
+    setTasks((previous) => previous.map((item) => ({ ...item, archived: true })));
+    setEditingTask(null);
+    setNotifiedMap({});
+    setToast('已全部归档');
+  }
+
+  function handleUnarchiveAll() {
+    setTasks((previous) => previous.map((item) => ({ ...item, archived: false })));
+    setNotifiedMap({});
+    setToast('已全部取消归档');
+  }
+
   const activeTasks = useMemo(() => tasks.filter((task) => !task.archived), [tasks]);
   const archivedTasks = useMemo(() => tasks.filter((task) => task.archived), [tasks]);
 
@@ -297,6 +310,8 @@ export default function App() {
             title="任务列表"
             emptyMessage="还没有任务，先创建一个时间段提醒吧。"
             tasks={activeTasks}
+            bulkActionText="全部归档"
+            onBulkAction={handleArchiveAll}
             onEdit={setEditingTask}
             onDelete={handleDelete}
             onArchive={handleArchive}
@@ -305,6 +320,8 @@ export default function App() {
             title="已归档任务"
             emptyMessage="暂无已归档任务。"
             tasks={archivedTasks}
+            bulkActionText="全部取消归档"
+            onBulkAction={handleUnarchiveAll}
             archiveButtonText="取消归档"
             onArchive={handleUnarchive}
             onDelete={handleDelete}

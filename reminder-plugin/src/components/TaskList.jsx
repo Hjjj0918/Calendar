@@ -24,6 +24,8 @@ export default function TaskList({
   emptyMessage = '还没有任务，先创建一个时间段提醒吧。',
   archiveButtonText = '归档',
   tasks,
+  bulkActionText,
+  onBulkAction,
   onEdit,
   onDelete,
   onArchive,
@@ -31,10 +33,14 @@ export default function TaskList({
 }) {
   const now = Date.now();
 
+  const hasBulkAction = Boolean(onBulkAction && tasks.length);
+
   if (!tasks.length) {
     return (
       <section className="task-list empty-state">
-        <h2>{title}</h2>
+        <div className="task-list-head">
+          <h2>{title}</h2>
+        </div>
         <p>{emptyMessage}</p>
       </section>
     );
@@ -42,7 +48,14 @@ export default function TaskList({
 
   return (
     <section className="task-list">
-      <h2>{title}</h2>
+      <div className="task-list-head">
+        <h2>{title}</h2>
+        {hasBulkAction ? (
+          <button type="button" className="secondary bulk-action" onClick={onBulkAction}>
+            {bulkActionText}
+          </button>
+        ) : null}
+      </div>
       <ul>
         {tasks.map((task) => {
           const status = statusLabel || statusOf(task, now);
