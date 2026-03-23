@@ -118,6 +118,7 @@ function clearNotifyFlags(previousMap, taskId) {
 export default function App() {
   const [tasks, setTasks] = useState(loadTasks);
   const [editingTask, setEditingTask] = useState(null);
+  const [activePanel, setActivePanel] = useState(null);
   const [toast, setToast] = useState('');
   const [notifiedMap, setNotifiedMap] = useState({});
   const [notificationEnabled, setNotificationEnabled] = useState(false);
@@ -201,6 +202,7 @@ export default function App() {
 
     setNotifiedMap((previous) => clearNotifyFlags(previous, taskId));
     setEditingTask(null);
+    setActivePanel(null);
     setToast(editingTask ? '任务已更新' : '任务已创建');
   }
 
@@ -226,6 +228,29 @@ export default function App() {
     );
     setNotifiedMap((previous) => clearNotifyFlags(previous, taskId));
     setToast('任务已取消归档');
+  }
+
+  function openCreatePanel() {
+    setEditingTask(null);
+    setActivePanel('create');
+  }
+
+  function openActivePanel() {
+    setActivePanel('active');
+  }
+
+  function openArchivedPanel() {
+    setActivePanel('archived');
+  }
+
+  function closePanel() {
+    setEditingTask(null);
+    setActivePanel(null);
+  }
+
+  function handleEdit(task) {
+    setEditingTask(task);
+    setActivePanel('create');
   }
 
   function handleArchiveAll() {
@@ -262,24 +287,13 @@ export default function App() {
   return (
     <main className="app-shell">
       <header className="hero">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+        <div className="hero-head">
           <div>
             <p className="kicker">Personal Reminder Plugin</p>
             <h1>时间段任务提醒</h1>
             <p>为每天的重要事项设置开始和结束时间，自动给你提醒。</p>
           </div>
-          <div
-            style={{
-              padding: '0.5rem 1rem',
-              borderRadius: '0.5rem',
-              fontSize: '0.875rem',
-              fontWeight: '600',
-              backgroundColor: notificationEnabled ? '#d4edda' : '#fff3cd',
-              color: notificationEnabled ? '#155724' : '#856404',
-              border: '1px solid',
-              borderColor: notificationEnabled ? '#c3e6cb' : '#ffeeba',
-            }}
-          >
+          <div className={`notification-badge ${notificationEnabled ? 'enabled' : 'disabled'}`}>
             {notificationEnabled ? '✅ 通知已启用' : '⚠️ 通知未启用'}
           </div>
         </div>
@@ -299,36 +313,71 @@ export default function App() {
         </div>
       </header>
 
-      <section className="layout-grid">
-        <TaskForm
-          editingTask={editingTask}
-          onSubmit={handleSubmit}
-          onCancel={() => setEditingTask(null)}
-        />
-        <div className="list-column">
-          <TaskList
-            title="任务列表"
-            emptyMessage="还没有任务，先创建一个时间段提醒吧。"
-            tasks={activeTasks}
-            bulkActionText="全部归档"
-            onBulkAction={handleArchiveAll}
-            onEdit={setEditingTask}
-            onDelete={handleDelete}
-            onArchive={handleArchive}
-          />
-          <TaskList
-            title="已归档任务"
-            emptyMessage="暂无已归档任务。"
-            tasks={archivedTasks}
-            bulkActionText="全部取消归档"
-            onBulkAction={handleUnarchiveAll}
-            archiveButtonText="取消归档"
-            onArchive={handleUnarchive}
-            onDelete={handleDelete}
-            statusLabel="已归档"
-          />
-        </div>
+      <section className="panel-actions" aria-label="任务快捷入口">
+        <button type="button" onClick={openActivePanel}>
+          任务列表
+        </button>
+        <button type="button" onClick={openCreatePanel}>
+          新建任务
+        </button>
+        <button type="button" onClick={openArchivedPanel} className="secondary">
+          已归档任务
+        </button>
       </section>
+
+      {activePanel ? (
+        <div className="modal-mask" role="dialog" aria-modal="true">
+          <div className="modal-card">
+            <div className="modal-head">
+              <h2>
+                {activePanel === 'create'
+                  ? editingTask
+                    ? '编辑任务'
+                    : '新建任务'
+                  : activePanel === 'active'
+                    ? '任务列表'
+                    : '已归档任务'}
+              </h2>
+              <button type="button" className="secondary" onClick={closePanel}>
+                关闭
+              </button>
+            </div>
+
+            <div className="modal-body">
+              {activePanel === 'create' ? (
+                <TaskForm editingTask={editingTask} onSubmit={handleSubmit} onCancel={closePanel} />
+              ) : null}
+
+              {activePanel === 'active' ? (
+                <TaskList
+                  title="任务列表"
+                  emptyMessage="还没有任务，先创建一个时间段提醒吧。"
+                  tasks={activeTasks}
+                  bulkActionText="全部归档"
+                  onBulkAction={handleArchiveAll}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                  onArchive={handleArchive}
+                />
+              ) : null}
+
+              {activePanel === 'archived' ? (
+                <TaskList
+                  title="已归档任务"
+                  emptyMessage="暂无已归档任务。"
+                  tasks={archivedTasks}
+                  bulkActionText="全部取消归档"
+                  onBulkAction={handleUnarchiveAll}
+                  archiveButtonText="取消归档"
+                  onArchive={handleUnarchive}
+                  onDelete={handleDelete}
+                  statusLabel="已归档"
+                />
+              ) : null}
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {toast ? <div className="toast">{toast}</div> : null}
     </main>

@@ -58,6 +58,35 @@ textarea {
   animation: rise-in 500ms ease-out;
 }
 
+.hero-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.notification-badge {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: 1px solid;
+  white-space: nowrap;
+}
+
+.notification-badge.enabled {
+  background-color: #d4edda;
+  color: #155724;
+  border-color: #c3e6cb;
+}
+
+.notification-badge.disabled {
+  background-color: #fff3cd;
+  color: #856404;
+  border-color: #ffeeba;
+}
+
 .kicker {
   color: var(--brand);
   letter-spacing: 0.09em;
@@ -116,6 +145,63 @@ textarea {
   display: grid;
   gap: 1rem;
   grid-template-columns: minmax(280px, 0.95fr) minmax(320px, 1.05fr);
+}
+
+.panel-actions {
+  margin-top: 1.1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+
+.panel-actions button {
+  min-width: 132px;
+}
+
+.modal-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 14, 8, 0.45);
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  z-index: 20;
+}
+
+.modal-card {
+  width: min(760px, 96vw);
+  max-height: 86vh;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: var(--bg-layer);
+  box-shadow: 0 24px 45px rgba(22, 15, 8, 0.32);
+}
+
+.modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-body {
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.modal-body .task-form,
+.modal-body .task-list {
+  box-shadow: none;
+}
+
+.modal-body .task-list ul {
+  max-height: 52vh;
+  overflow-y: auto;
+  padding-right: 0.2rem;
 }
 
 .list-column {
@@ -314,6 +400,19 @@ button.danger {
 }
 
 @media (max-width: 860px) {
+  .hero-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .notification-badge {
+    white-space: normal;
+  }
+
+  .panel-actions button {
+    flex: 1 1 150px;
+  }
+
   .layout-grid {
     grid-template-columns: 1fr;
   }
