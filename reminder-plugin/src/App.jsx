@@ -122,6 +122,8 @@ export default function App() {
   const [toast, setToast] = useState('');
   const [notifiedMap, setNotifiedMap] = useState({});
   const [notificationEnabled, setNotificationEnabled] = useState(false);
+  const [activeSearchQuery, setActiveSearchQuery] = useState('');
+  const [archivedSearchQuery, setArchivedSearchQuery] = useState('');
 
   useEffect(() => {
     requestNotificationPermission();
@@ -236,10 +238,12 @@ export default function App() {
   }
 
   function openActivePanel() {
+    setActiveSearchQuery('');
     setActivePanel('active');
   }
 
   function openArchivedPanel() {
+    setArchivedSearchQuery('');
     setActivePanel('archived');
   }
 
@@ -353,6 +357,9 @@ export default function App() {
                   title="任务列表"
                   emptyMessage="还没有任务，先创建一个时间段提醒吧。"
                   tasks={activeTasks}
+                  searchQuery={activeSearchQuery}
+                  onSearchQueryChange={setActiveSearchQuery}
+                  searchPlaceholder="搜索任务标题或描述"
                   bulkActionText="全部归档"
                   onBulkAction={handleArchiveAll}
                   onEdit={handleEdit}
@@ -366,6 +373,9 @@ export default function App() {
                   title="已归档任务"
                   emptyMessage="暂无已归档任务。"
                   tasks={archivedTasks}
+                  searchQuery={archivedSearchQuery}
+                  onSearchQueryChange={setArchivedSearchQuery}
+                  searchPlaceholder="搜索已归档任务"
                   bulkActionText="全部取消归档"
                   onBulkAction={handleUnarchiveAll}
                   archiveButtonText="取消归档"

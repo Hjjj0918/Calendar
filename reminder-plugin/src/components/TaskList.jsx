@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+
 function formatDate(value) {
   return new Intl.DateTimeFormat('zh-CN', {
     month: 'short',
@@ -30,10 +32,27 @@ export default function TaskList({
   onDelete,
   onArchive,
   statusLabel,
+  searchQuery = '',
+  onSearchQueryChange,
+  searchPlaceholder = '搜索任务标题或描述',
 }) {
   const now = Date.now();
 
-  const hasBulkAction = Boolean(onBulkAction && tasks.length);
+  const filteredTasks = useMemo(() => {
+    const keyword = searchQuery.trim().toLowerCase();
+    if (!keyword) {
+      return tasks;
+    }
+
+    return tasks.filter((task) => {
+      const title = task.title.toLowerCase();
+      const description = (task.description || '').toLowerCase();
+      return title.includes(keyword) || description.includes(keyword);
+    });
+  }, [tasks, searchQuery]);
+
+  const hasBulkAction = Boolean(onBulkAction && filteredTasks.length);
+  const hasSearch = typeof onSearchQueryChange === 'function';
 
   if (!tasks.length) {
     return (
@@ -56,8 +75,21 @@ export default function TaskList({
           </button>
         ) : null}
       </div>
+      {hasSearch ? (
+        <label className="task-search" aria-label={`${title}搜索`}>
+          <input
+            type="search"
+            value={searchQuery}
+            onChange={(event) => onSearchQueryChange(event.target.value)}
+            placeholder={searchPlaceholder}
+          />
+        </label>
+      ) : null}
+      {!filteredTasks.length ? (
+        <p className="search-empty">没有找到匹配的任务，请尝试其他关键词。</p>
+      ) : null}
       <ul>
-        {tasks.map((task) => {
+        {filteredTasks.map((task) => {
           const status = statusLabel || statusOf(task, now);
           return (
             <li key={task.id} className="task-item">

@@ -237,6 +237,29 @@ textarea {
   margin-bottom: 0.65rem;
 }
 
+.task-search {
+  display: block;
+  margin-bottom: 0.65rem;
+}
+
+.task-search input {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  padding: 0.55rem 0.75rem;
+  background: #fff;
+}
+
+.task-search input:focus {
+  outline: 2px solid #f2c3a6;
+  border-color: transparent;
+}
+
+.search-empty {
+  color: var(--text-muted);
+  margin-bottom: 0.65rem;
+}
+
 .bulk-action {
   padding: 0.42rem 0.78rem;
   font-size: 0.86rem;
